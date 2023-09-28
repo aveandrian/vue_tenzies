@@ -15,12 +15,11 @@ function allnewDice(){
 }
 
 function holdDice(id){
-  console.log("Called", id)
-  console.log("dices.value before", dices.value)
-  dices.value = dices.value.map(prevDice => {
+  let newArr = dices.value.map(prevDice => {
       return prevDice.id === id ? {...prevDice, isHeld: !prevDice.isHeld} : prevDice 
   })
-  console.log("dices.value after", dices.value)
+  console.log(newArr)
+  dices.value = newArr
 }
 
 function generateNewDie(){
@@ -32,7 +31,7 @@ function generateNewDie(){
 }
 
 function rollDice(){
-  if(tenzies){
+  if(tenzies.value){
     dices.value = allnewDice()
     tenzies.value = false
   }
@@ -44,7 +43,7 @@ function rollDice(){
     })
 }
 
-console.log("MAIN FUNCTION DICES",dices.value)
+console.log("MAIN FUNCTION DICES", dices.value)
 </script>
 
 <template>
@@ -53,11 +52,11 @@ console.log("MAIN FUNCTION DICES",dices.value)
     <p className='description'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
     <div className='dice-grid'>
       <Dice  
-        v-for="dice in dices"
+        v-for="(dice, index) in dices"
+        :dice="dice"
+        :index="index"
         :key="dice.id"
-        :value="dice.value"
-        :isHeld="dice.isHeld" 
-        @holdDice="holdDice(dice.id)"
+        @holdThisDice="holdDice(dice.id)"
       />
     </div>
     <button className='roll-btn' @click="rollDice">{{tenzies ? "New Game" : "Roll"}}</button>
