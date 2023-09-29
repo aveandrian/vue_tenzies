@@ -1,10 +1,13 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { nanoid } from 'nanoid'
 import Dice from './components/Dice.vue'
+import ConfettiExplosion from "vue-confetti-explosion";
 
 const dices = ref(allnewDice());
 const tenzies = ref(false);
+const bestScore = ref(localStorage.getItem('bestScore'))
+const rollsNumber = ref(0)
 
 function allnewDice(){
   let diceArray = []
@@ -13,6 +16,16 @@ function allnewDice(){
   }
   return diceArray;
 }
+
+watch(dices, (newDice)=>{
+  let firstValue = newDice[0].value;
+  if(newDice.every(die => die.isHeld && die.value === firstValue)){
+    tenzies.value = true
+    if(rollsNumber.value < bestScore.value || bestScore.value == null)
+      setNewBestScore(rollsNumber.value)
+    console.log("You won!")
+  }
+})
 
 function holdDice(id){
   let newArr = dices.value.map(prevDice => {
@@ -31,9 +44,12 @@ function generateNewDie(){
 }
 
 function rollDice(){
+  rollsNumber.value++
   if(tenzies.value){
     dices.value = allnewDice()
     tenzies.value = false
+    rollsNumber.value = 0
+    
   }
   else
     dices.value = dices.value.map(dice => {
@@ -43,10 +59,17 @@ function rollDice(){
     })
 }
 
+
+function setNewBestScore(score){
+  localStorage.setItem('bestScore', score)
+  bestScore.value = score
+}
+
 console.log("MAIN FUNCTION DICES", dices.value)
 </script>
 
 <template>
+  <ConfettiExplosion v-if="tenzies"/>
   <main>
     <h1 className='title'>Tenzies</h1>
     <p className='description'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
@@ -61,10 +84,10 @@ console.log("MAIN FUNCTION DICES", dices.value)
     </div>
     <button className='roll-btn' @click="rollDice">{{tenzies ? "New Game" : "Roll"}}</button>
   </main>
-  <!-- <div className='scoreboard'> -->
-      <!-- <h1 className='title'>Rolls number: {rollsNumber}</h1> -->
-      <!-- {bestScore && <h1 className='title'>Best score: {bestScore}</h1>} -->
-  <!-- </div> -->
+  <div className='scoreboard'>
+      <h1 className='title'>Rolls number: {{rollsNumber}}</h1>
+      <h1 v-if="bestScore" className='title'>Best score: {{bestScore}}</h1>
+  </div>
 </template>
 
 <style>
