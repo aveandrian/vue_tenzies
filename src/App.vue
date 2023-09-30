@@ -100,13 +100,12 @@ body {
   background-color: #0B2434;
 }
 
-#root {
+#app {
   gap: 50px;
   padding: 50px;
   display: flex;
   justify-content: center;
 }
-
 
 main {
   width: 400px;
